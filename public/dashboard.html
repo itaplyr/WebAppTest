@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0a0b10;
+            --card-bg: rgba(20, 22, 32, 0.7);
+            --accent-color: #7c3aed;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(15, 17, 26, 0.9);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-group {
+            margin-bottom: 2rem;
+        }
+
+        .nav-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: rgba(124, 58, 237, 0.1);
+            color: white;
+        }
+
+        .nav-item.active {
+            border-left: 3px solid var(--accent-color);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: radial-gradient(circle at top right, rgba(124, 58, 237, 0.05), transparent);
+        }
+
+        .top-bar {
+            padding: 1.5rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 3rem;
+            overflow-y: auto;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        /* Log Table */
+        .table-container {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+        }
+
+        th {
+            text-align: left;
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-secondary);
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        .status-pill {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .status-2xx {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .status-4xx {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .status-5xx {
+            background: rgba(239, 104, 104, 0.1);
+            color: var(--error);
+        }
+
+        .method-pill {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            margin-right: 8px;
+        }
+
+        .method-GET {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        .method-POST {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .logout-btn {
+            padding: 10px 20px;
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* Page Transitions */
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+            </svg>
+            AdminPanel
+        </div>
+
+        <div class="nav-group">
+            <span class="nav-label">General</span>
+            <div class="nav-item active" onclick="showPage('overview')">Overview</div>
+            <div class="nav-item" onclick="showPage('incoming')">Incoming Requests</div>
+            <div class="nav-item" onclick="showPage('outgoing')">Outgoing Requests</div>
+        </div>
+
+        <div class="nav-group">
+            <span class="nav-label">System</span>
+            <div class="nav-item" onclick="showPage('settings')">Settings</div>
+        </div>
+
+        <div style="margin-top: auto;">
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <h2 id="page-title">Overview</h2>
+            <div style="color: var(--text-secondary); font-size: 0.875rem;" id="current-time"></div>
+        </div>
+
+        <div class="content-area">
+            <!-- Overview Page -->
+            <div id="page-overview" class="page active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Requests</div>
+                        <div class="stat-value" id="stat-total">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Success Rate</div>
+                        <div class="stat-value" id="stat-success">0%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Avg. Latency</div>
+                        <div class="stat-value" id="stat-latency">0ms</div>
+                    </div>
+                </div>
+
+                <h3>Recent Activity</h3>
+                <div class="table-container" style="margin-top: 1.5rem;">
+                    <table id="recent-logs-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Method</th>
+                                <th>Path</th>
+                                <th>Status</th>
+                                <th>Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Incoming Requests Page -->
+            <div id="page-incoming" class="page">
+                <h3>Incoming Traffic Logs</h3>
+                <div class="table-container" style="margin-top: 1.5rem;">
+                    <table id="incoming-logs-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Method</th>
+                                <th>Path</th>
+                                <th>Status</th>
+                                <th>IP Address</th>
+                                <th>User Agent</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Outgoing Requests Page -->
+            <div id="page-outgoing" class="page">
+                <div style="text-align: center; padding: 5rem; color: var(--text-secondary);">
+                    <p>No outgoing requests recorded yet.</p>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="page-settings" class="page">
+                <h3>System Settings</h3>
+                <div class="stat-card" style="margin-top: 1.5rem; max-width: 600px;">
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem;">Log Retention</label>
+                        <select
+                            style="width: 100%; padding: 10px; background: #000; border: 1px solid #333; color: #fff; border-radius: 8px;">
+                            <option>Last 500 requests</option>
+                            <option>Last 1000 requests</option>
+                        </select>
+                    </div>
+                    <button class="nav-item"
+                        style="width: 100%; justify-content: center; background: var(--accent-color); color: white;">Save
+                        Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+
+            document.getElementById('page-' + pageId).classList.add('active');
+            event.currentTarget.classList.add('active');
+            document.getElementById('page-title').innerText = event.currentTarget.innerText;
+
+            if (pageId === 'overview' || pageId === 'incoming') {
+                fetchLogs();
+            }
+        }
+
+        async function fetchLogs() {
+            const [logsRes, statsRes] = await Promise.all([
+                fetch('/api/logs/incoming'),
+                fetch('/api/logs/stats')
+            ]);
+
+            const logs = await logsRes.json();
+            const stats = await statsRes.json();
+
+            // Update Stats
+            document.getElementById('stat-total').innerText = stats.totalRequests;
+            const successRate = stats.totalRequests > 0 ? ((stats.successCount / stats.totalRequests) * 100).toFixed(1) : 0;
+            document.getElementById('stat-success').innerText = successRate + '%';
+            document.getElementById('stat-latency').innerText = stats.avgDuration;
+
+            // Update Tables
+            updateTable('recent-logs-table', logs.slice(0, 10), false);
+            updateTable('incoming-logs-table', logs, true);
+        }
+
+        function updateTable(tableId, data, full) {
+            const tbody = document.querySelector(`#${tableId} tbody`);
+            tbody.innerHTML = '';
+
+            data.forEach(log => {
+                const tr = document.createElement('tr');
+                const time = new Date(log.timestamp).toLocaleTimeString();
+                const statusClass = log.status < 400 ? 'status-2xx' : (log.status < 500 ? 'status-4xx' : 'status-5xx');
+
+                let html = `
+                    <td>${time}</td>
+                    <td><span class="method-pill method-${log.method}">${log.method}</span></td>
+                    <td style="color: var(--text-primary)">${log.path}</td>
+                    <td><span class="status-pill ${statusClass}">${log.status}</span></td>
+                `;
+
+                if (full) {
+                    html += `
+                        <td>${log.ip}</td>
+                        <td style="font-size: 0.7rem; color: var(--text-secondary); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${log.userAgent}</td>
+                    `;
+                } else {
+                    html += `<td>${log.duration}</td>`;
+                }
+
+                tr.innerHTML = html;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function logout() {
+            await fetch('/api/logout', { method: 'POST' });
+            window.location.href = '/login';
+        }
+
+        // Auto-refresh logs every 5 seconds
+        setInterval(fetchLogs, 5000);
+        fetchLogs();
+
+        // Update clock
+        setInterval(() => {
+            document.getElementById('current-time').innerText = new Date().toLocaleString();
+        }, 1000);
+    </script>
+</body>
+
+</html>
